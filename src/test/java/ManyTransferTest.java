@@ -1,11 +1,11 @@
 import lombok.val;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import static com.codeborne.selenide.Selenide.open;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static com.codeborne.selenide.Selenide.*;
+public class ManyTransferTest {
 
-class ManyTransferTest {
-    @Test
+    @BeforeEach
     void shouldTransferManyBetweenOwnCards () {
         open("http://localhost:9999");
         val loginPage = new LoginPage();
@@ -14,45 +14,58 @@ class ManyTransferTest {
         val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         verificationPage.validVerify(verificationCode);
     }
-    @DisplayName("Should not transfer money from card with a negative balance(bug)")
-    @Test
-    void shouldNotTransferMoneyFromCardWithANegativeBalance() {
-        open("http://localhost:9999");
-        val loginPage = new LoginPage();
-        val authInfo = DataHelper.getAuthInfo();
-        val verificationPage = loginPage.validLogin(authInfo);
-        val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        verificationPage.validVerify(verificationCode);
-        val dashBoardPage = new DashboardPage();
-        dashBoardPage.transferMoneyFromNegativeBalance();
-        dashBoardPage.dashboardPageVisible();
-    }
 
-    @DisplayName("Should transfer money to first card")
     @Test
-    void shouldTransferMoneyToFirstCard () {
-        open("http://localhost:9999");
-        val loginPage = new LoginPage();
-        val authInfo = DataHelper.getAuthInfo();
-        val verificationPage = loginPage.validLogin(authInfo);
-        val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        verificationPage.validVerify(verificationCode);
-        val dashboardPage = new DashboardPage();
-        dashboardPage.transferMoneyToFirstCard();
+    @DisplayName("Should transfer money to first card")
+    void shouldTransferMoneyToFirstCard() {
+        int StartFirstCardBalance = DashboardPage.CurrentBalance.GetFirstCardBalance();
+        int StartSecondCardBalance = DashboardPage.CurrentBalance.GetSecondCardBalance();
+        String amount = "500";
+        int amountInt = Integer.parseInt(amount);
+        int ExpectedFirstCardBalance = StartFirstCardBalance + amountInt;
+        int ExpectedSecondCardBalance = StartSecondCardBalance - amountInt;
+        DashboardPage dashboardPage = new DashboardPage();
+        dashboardPage.choiceFirstCard();
+        DashboardPage.validAmountInput(amount);
+        dashboardPage.cardNumberInput(DataHelper.getSecondCardNumber());
+        dashboardPage.clickTransferActionButton();
+        int NextFirstCardBalance = DashboardPage.CurrentBalance.GetFirstCardBalance();
+        int NextSecondCardBalance = DashboardPage.CurrentBalance.GetSecondCardBalance();
+        assertEquals(ExpectedFirstCardBalance, NextFirstCardBalance);
+        assertEquals(ExpectedSecondCardBalance, NextSecondCardBalance);
         dashboardPage.dashboardPageVisible();
     }
 
-    @DisplayName("Should transfer money to last card")
     @Test
-    void shouldTransferMoneyToLastCard () {
-        open("http://localhost:9999");
-        val loginPage = new LoginPage();
-        val authInfo = DataHelper.getAuthInfo();
-        val verificationPage = loginPage.validLogin(authInfo);
-        val verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        verificationPage.validVerify(verificationCode);
-        val dashBoardPage = new DashboardPage();
-        dashBoardPage.transferMoneyToLastCard();
-        dashBoardPage.dashboardPageVisible();
+    @DisplayName("Should transfer money to second card")
+    void shouldTransferMoneyToSecondCard() {
+        int StartFirstCardBalance = DashboardPage.CurrentBalance.GetFirstCardBalance();
+        int StartSecondCardBalance = DashboardPage.CurrentBalance.GetSecondCardBalance();
+        String amount = "500";
+        int amountInt = Integer.parseInt(amount);
+        int ExpectedFirstCardBalance = StartFirstCardBalance - amountInt;
+        int ExpectedSecondCardBalance = StartSecondCardBalance + amountInt;
+        DashboardPage dashboardPage = new DashboardPage();
+        dashboardPage.choiceSecondCard();
+        DashboardPage.validAmountInput(amount);
+        dashboardPage.cardNumberInput(DataHelper.getFirstCardNumber());
+        dashboardPage.clickTransferActionButton();
+        int NextFirstCardBalance = DashboardPage.CurrentBalance.GetFirstCardBalance();
+        int NextSecondCardBalance = DashboardPage.CurrentBalance.GetSecondCardBalance();
+        assertEquals(ExpectedFirstCardBalance, NextFirstCardBalance);
+        assertEquals(ExpectedSecondCardBalance, NextSecondCardBalance);
+        dashboardPage.dashboardPageVisible();
     }
+    @DisplayName("Should not transfer money from card with a negative balance(bug)")
+    @Test
+    void shouldNotTransferMoneyFromCardWithANegativeBalance() {
+        String amount = "500000";
+        DashboardPage dashboardPage = new DashboardPage();
+        dashboardPage.choiceSecondCard();
+        DashboardPage.validAmountInput(amount);
+        dashboardPage.cardNumberInput(DataHelper.getFirstCardNumber());
+        dashboardPage.clickTransferActionButton();
+        dashboardPage.dashboardPageVisible();
+    }
+
 }

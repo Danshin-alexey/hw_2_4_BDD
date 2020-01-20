@@ -1,39 +1,61 @@
 import com.codeborne.selenide.SelenideElement;
-import static com.codeborne.selenide.Condition.*;
+
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 
 public class DashboardPage {
     private SelenideElement heading = $("[data-test-id=dashboard]");
-    private SelenideElement buttonBalance1 = $("[data-test-id='92df3f1c-a033-48e6-8390-206f6b1f56c0'] button");
-    private SelenideElement buttonBalance2 = $("[data-test-id='0f3f5c2a-249e-4c3d-8287-09f7a039391d'] button");
-    private SelenideElement amountToTransfer=$(".input__control");
-    private SelenideElement from = $("[placeholder='0000 0000 0000 0000']");
-    private SelenideElement refill = $("[data-test-id='action-transfer']");
+    private SelenideElement FirstCard = $("[data-test-id='92df3f1c-a033-48e6-8390-206f6b1f56c0']");
+    private SelenideElement firstCardButton = FirstCard.$("[data-test-id = action-deposit]");
+    private SelenideElement SecondCard = $("[data-test-id='0f3f5c2a-249e-4c3d-8287-09f7a039391d']");
+    private SelenideElement secondCardButton = SecondCard.$("[data-test-id = action-deposit]");
+    private static SelenideElement fieldTransactionAmount = $("[data-test-id = amount] input");
+    private SelenideElement fieldCardNumberFrom = $("[data-test-id = from] input");
+    private SelenideElement transferActionButton = $("[data-test-id = action-transfer]");
 
     public void dashboardPageVisible() {
 
         heading.shouldBe(visible);
     }
 
-        public void transferMoneyToFirstCard() {
-        buttonBalance1.click();
-        amountToTransfer.setValue("500");
-        from.setValue(DataHelper.CartData.getNumberLastCard());
-        refill.click();
+    public static void validAmountInput(String amount) {
+        fieldTransactionAmount.setValue(DataHelper.Amount.getAmount(amount));
     }
 
-    public void transferMoneyToLastCard() {
-        buttonBalance2.click();
-        amountToTransfer.setValue("500");
-        from.setValue(DataHelper.CartData.getNumberFirstCard());
-        refill.click();
+
+    public void cardNumberInput(DataHelper.NumberCard number) {
+        fieldCardNumberFrom.setValue(number.getCardNumber());
     }
 
-    public void transferMoneyFromNegativeBalance() {
-        buttonBalance1.click();
-        amountToTransfer.setValue("100000");
-        from.setValue(DataHelper.CartData.getNumberFirstCard());
-        refill.click();
+    public void choiceFirstCard() {
+        firstCardButton.click();
+    }
+
+    public void choiceSecondCard() {
+        secondCardButton.click();
+    }
+
+    public void clickTransferActionButton() {
+        transferActionButton.click();
+    }
+
+
+    public static class CurrentBalance {
+        private static SelenideElement FirstCard = $("[data-test-id='92df3f1c-a033-48e6-8390-206f6b1f56c0']");
+        private static SelenideElement SecondCard = $("[data-test-id='0f3f5c2a-249e-4c3d-8287-09f7a039391d']");
+
+        public static int GetFirstCardBalance() {
+            String firstCardBalanceStr = FirstCard.text();
+            int firstCardBalance = Integer.parseInt(firstCardBalanceStr.substring(
+                    29, firstCardBalanceStr.length() - 13).trim());
+            return firstCardBalance;
+        }
+
+        public static int GetSecondCardBalance() {
+            String secondCardBalanceStr = SecondCard.text();
+            int secondCardBalance = Integer.parseInt(
+                    secondCardBalanceStr.substring(29, secondCardBalanceStr.length() - 13).trim());
+            return secondCardBalance;
+        }
     }
 }
-
