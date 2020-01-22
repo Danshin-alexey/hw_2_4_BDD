@@ -45,17 +45,19 @@ public class DashboardPage {
         private static SelenideElement SecondCard = $("[data-test-id='0f3f5c2a-249e-4c3d-8287-09f7a039391d']");
 
         public static int GetFirstCardBalance() {
-            String firstCardBalanceStr = FirstCard.text();
-            int firstCardBalance = Integer.parseInt(firstCardBalanceStr.substring(
-                    29, firstCardBalanceStr.length() - 13).trim());
-            return firstCardBalance;
+            String balanceText = FirstCard.getText();
+            int startInd = balanceText.indexOf("баланс: ");
+            int finishInd = balanceText.indexOf(" р.");
+            String balance = balanceText.substring(startInd + 8, finishInd);
+            return Integer.parseInt(balance)    ;
         }
 
-        public static int GetSecondCardBalance() {
-            String secondCardBalanceStr = SecondCard.text();
-            int secondCardBalance = Integer.parseInt(
-                    secondCardBalanceStr.substring(29, secondCardBalanceStr.length() - 13).trim());
-            return secondCardBalance;
+        public static int GetSecondCardBalance () {
+            String balanceText = SecondCard.getText();
+            int startInd = balanceText.indexOf("баланс: ");
+            int finishInd = balanceText.indexOf(" р.");
+            String balance = balanceText.substring(startInd + 8, finishInd);
+            return Integer.parseInt(balance)    ;
         }
     }
 }
